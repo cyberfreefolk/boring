@@ -74,7 +74,7 @@ class DaoBuilder<T : @Dao Any>(private val clazz: Class<T>) {
                         val annotations = method.annotations
                         if (annotations.isNullOrEmpty()) {
                             if(method.isDefault) {
-                                InvocationHandler.invokeDefault(proxy, method, args)
+                                return InvocationHandler.invokeDefault(proxy, method, args)
                             } else {
                                 logger.error("dao中不被注解的方法不被处理")
                                 return null

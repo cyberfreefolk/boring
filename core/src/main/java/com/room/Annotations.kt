@@ -51,7 +51,7 @@ annotation class Database(
  *
  * @see Insert
  */
-@Target(AnnotationTarget.CLASS)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Dao
 
