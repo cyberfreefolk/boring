@@ -5,10 +5,8 @@ import com.room.handlers.BeanHandler
 import com.room.handlers.BeanListHandler
 import com.room.handlers.ColumnListHandler
 import org.slf4j.LoggerFactory
-import java.lang.reflect.InvocationHandler
-import java.lang.reflect.Method
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Proxy
+import java.lang.invoke.MethodHandles
+import java.lang.reflect.*
 import java.sql.ResultSet
 
 
@@ -75,8 +73,12 @@ class DaoBuilder<T : @Dao Any>(private val clazz: Class<T>) {
                         }
                         val annotations = method.annotations
                         if (annotations.isNullOrEmpty()) {
-                            //logger.error("dao中不被注解的方法不被处理")
-                            return method.invoke(this, *(args ?: empty))
+                            if(method.isDefault) {
+                                InvocationHandler.invokeDefault(proxy, method, args)
+                            } else {
+                                logger.error("dao中不被注解的方法不被处理")
+                                return null
+                            }
                         }
                         if (annotations.size > 1) {
                             logger.error("dao中一个方法只允许被一个注解")
