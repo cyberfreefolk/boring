@@ -75,8 +75,8 @@ class DaoBuilder<T : @Dao Any>(private val clazz: Class<T>) {
                         }
                         val annotations = method.annotations
                         if (annotations.isNullOrEmpty()) {
-                            logger.error("dao中不被注解的方法不被处理")
-                            return null
+                            //logger.error("dao中不被注解的方法不被处理")
+                            return method.invoke(this, *(args ?: empty))
                         }
                         if (annotations.size > 1) {
                             logger.error("dao中一个方法只允许被一个注解")
