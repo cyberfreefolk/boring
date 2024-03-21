@@ -45,7 +45,7 @@ interface AppDao {
     @Delete
     fun delete(user: User): Boolean
 
-    fun hello(v: Any) {
+    fun hello() {
         println("hello")
     }
  }
@@ -58,7 +58,7 @@ object Main {
     fun main(args: Array<String>) {
         val database = DatabaseBuilder(AppDatabase::class.java).build()
         val dao: AppDao = database.appDao()
-        dao.hello(1)
+        dao.hello()
         logger.info("dao = ${dao}")
         val user = User(
                 name = "john"

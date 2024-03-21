@@ -5,8 +5,10 @@ import com.room.handlers.BeanHandler
 import com.room.handlers.BeanListHandler
 import com.room.handlers.ColumnListHandler
 import org.slf4j.LoggerFactory
-import java.lang.invoke.MethodHandles
-import java.lang.reflect.*
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Method
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Proxy
 import java.sql.ResultSet
 
 
@@ -74,7 +76,10 @@ class DaoBuilder<T : @Dao Any>(private val clazz: Class<T>) {
                         val annotations = method.annotations
                         if (annotations.isNullOrEmpty()) {
                             if(method.isDefault) {
-                                return InvocationHandler.invokeDefault(proxy, method, args)
+
+                                // the args array can be null if the number of formal parameters required by
+                                // the method is zero (consistent with Method::invoke)
+                                return InvocationHandler.invokeDefault(proxy, method, *(args ?: empty))
                             } else {
                                 logger.error("dao中不被注解的方法不被处理")
                                 return null
