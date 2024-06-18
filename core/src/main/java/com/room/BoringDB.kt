@@ -79,7 +79,18 @@ class DaoBuilder<T : @Dao Any>(private val clazz: Class<T>) {
 
                                 // the args array can be null if the number of formal parameters required by
                                 // the method is zero (consistent with Method::invoke)
-                                return InvocationHandler.invokeDefault(proxy, method, *(args ?: empty))
+
+                                //return InvocationHandler.invokeDefault(proxy, method, *(args ?: empty))
+                                try {
+                                    val caller = InvocationHandler::class.java.getMethod("invokeDefault", Any::class.java, Method::class.java, Array<Any>::class.java)
+
+                                    return caller.invoke(null, proxy, method, (args ?: empty))
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    logger.error("dao中不被注解的方法不被处理")
+                                    return null
+                                }
+
                             } else {
                                 logger.error("dao中不被注解的方法不被处理")
                                 return null
@@ -98,14 +109,27 @@ class DaoBuilder<T : @Dao Any>(private val clazz: Class<T>) {
                             is Delete -> {
                                 if (ano.value.isNullOrEmpty()) {
                                     // 需要primaryKey
-                                    return performDelete(args!![0], ano)
+                                    val performDelete = performDelete(args!![0], ano)
+                                    if (method.returnType.isAssignableFrom(Boolean::class.java)) {
+                                        return performDelete > 0
+                                    } else {
+                                        return performDelete
+                                    }
                                 } else {
-                                    return mSession!!.query0(ano.value, *(args ?: empty))
+                                    if (method.returnType.isAssignableFrom(Boolean::class.java)) {
+                                        return mSession!!.update0(ano.value, *(args ?: empty)) > 0
+                                    } else {
+                                        return mSession!!.update0(ano.value, *(args ?: empty))
+                                    }
                                 }
 
                             }
                             is Update -> {
-                                return performUpdate(args!![0], ano)
+                                if (method.returnType.isAssignableFrom(Boolean::class.java)) {
+                                    return performUpdate(args!![0], ano) > 0
+                                } else {
+                                    return performUpdate(args!![0], ano)
+                                }
                             }
                             is Query -> {
                                 val sql = ano.value
@@ -125,7 +149,6 @@ class DaoBuilder<T : @Dao Any>(private val clazz: Class<T>) {
                                     }
                                     method.returnType.isAssignableFrom(List::class.java) -> {
                                         val gr = method.genericReturnType as ParameterizedType
-
 
                                         val clazz1 = Class.forName(gr.actualTypeArguments[0].typeName)
                                         if (clazz1.isPrimitive || clazz1 == String::class.java) {
@@ -148,15 +171,15 @@ class DaoBuilder<T : @Dao Any>(private val clazz: Class<T>) {
 
 
     private fun performInsert(entity: Any?, annotation: Annotation): Boolean {
-        return mSession!!.exec0( entity!!, annotation)
+        return mSession!!.execInsert( entity!!, annotation)
     }
 
-    private fun performDelete(entity: Any?, annotation: Annotation): Boolean {
-        return mSession!!.exec1( entity!!, annotation)
+    private fun performDelete(entity: Any?, annotation: Annotation): Int {
+        return mSession!!.execDelete( entity!!, annotation)
     }
 
-    private fun performUpdate(entity: Any?, annotation: Annotation): Boolean {
-        return mSession!!.exec2( entity!!, annotation)
+    private fun performUpdate(entity: Any?, annotation: Annotation): Int {
+        return mSession!!.execUpdate( entity!!, annotation)
     }
 }
 

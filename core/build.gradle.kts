@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.room.boring"
-version = "1.0-SNAPSHOT"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
@@ -15,7 +15,8 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.xerial:sqlite-jdbc:3.36.0.3")
     implementation("org.slf4j:slf4j-api:1.7.25")
-    //implementation("org.slf4j:slf4j-log4j12:1.7.30")
+    testImplementation("org.slf4j:slf4j-simple:2.0.6")
+
 }
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {

@@ -45,6 +45,12 @@ interface AppDao {
     @Delete
     fun delete(user: User): Boolean
 
+    @Delete("DELETE FROM user WHERE name=?")
+    fun delete(name: String): Boolean
+
+    @Delete("DELETE FROM user WHERE name=?")
+    fun delete2(name: String): Int
+
     fun hello() {
         println("hello")
     }
@@ -67,6 +73,8 @@ object Main {
         dao.add(User(
                 name = "admin"
         ))
+        println("delete result ${dao.delete("john")}")
+        println("delete result ${dao.delete2("admin")}")
         val list = dao.query()
         logger.info("result:$list,count=${dao.count()}")
         dao.update(list[0].apply {

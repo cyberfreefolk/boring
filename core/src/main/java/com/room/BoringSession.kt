@@ -147,7 +147,7 @@ class DBSession(private val path: String, vararg tables: KClass<*>) {
     /**
      * @param op 0 insert 1 delete 2 update
      */
-    fun exec0( entity: Any, annotation: Annotation): Boolean {
+    fun execInsert(entity: Any, annotation: Annotation): Boolean {
         connection!!.autoCommit = false
         try {
             val info = retrieveInfo(entity::class.java)
@@ -194,10 +194,8 @@ class DBSession(private val path: String, vararg tables: KClass<*>) {
         }
     }
 
-    /**
-     * @param op 0 insert 1 delete 2 update
-     */
-    fun exec1(entity: Any, annotation: Annotation): Boolean {
+
+    fun execDelete(entity: Any, annotation: Annotation): Int {
         connection!!.autoCommit = false
         try {
 
@@ -233,9 +231,9 @@ class DBSession(private val path: String, vararg tables: KClass<*>) {
             }
             logger.info("sql====>${stmt}")
 
-            val r = stmt.execute()
+            val r = stmt.executeUpdate()
             connection!!.commit()
-            return true
+            return r
         } catch (e: Exception) {
             connection!!.rollback()
             throw e
@@ -248,7 +246,7 @@ class DBSession(private val path: String, vararg tables: KClass<*>) {
     /**
      * @param op 0 insert 1 delete 2 update
      */
-    fun exec2(entity: Any, annotation: Annotation): Boolean {
+    fun execUpdate(entity: Any, annotation: Annotation): Int {
         connection!!.autoCommit = false
         try {
 
@@ -295,9 +293,9 @@ class DBSession(private val path: String, vararg tables: KClass<*>) {
             }
             logger.info("sql====>${stmt}")
 
-            val r = stmt.execute()
+            val r = stmt.executeUpdate()
             connection!!.commit()
-            return true
+            return r
         } catch (e: Exception) {
             connection!!.rollback()
             throw e
@@ -352,7 +350,7 @@ class DBSession(private val path: String, vararg tables: KClass<*>) {
         return ret
     }
 
-    fun query0(sql: String, vararg args: Any?): Boolean {
+    fun update0(sql: String, vararg args: Any?): Int {
         //TODO lint sql
 //        val pattern: Pattern = Pattern.compile("\\?|:\\w+")
 //        val matcher = pattern.matcher(sql)
@@ -416,6 +414,6 @@ class DBSession(private val path: String, vararg tables: KClass<*>) {
             setParam(stmt, offset, arg)
         }
         logger.info("sql====>${stmt}")
-        return stmt.execute()
+        return stmt.executeUpdate()
     }
 }
