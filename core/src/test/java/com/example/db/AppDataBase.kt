@@ -6,9 +6,10 @@ import com.room.anno.Database
  * 数据库文件
  */
 @Database(
-    entities = [UploadEntity::class, OtherRecord::class],
+    entities = [UploadEntity::class, OtherRecord::class, PromoteEntity::class],
     version = 1)
 interface AppDataBase  {
      fun uploadDao(): UploadDao
      fun otherDao(): OtherRecordDao
+     fun promoteDao(): PromoteDao
 }
